@@ -10,7 +10,9 @@ class NumberSpider(scrapy.Spider):
 
     def open_spider(self, spider):
         """Open database connection when the spider starts."""
+        logging.info("Opening database connection...")
         try:
+            # Try to establish the database connection
             self.connection = pymysql.connect(
                 host='localhost',  # e.g., 'localhost' or IP address of the MySQL server
                 user='public_admin',  # Your MySQL username
@@ -19,6 +21,7 @@ class NumberSpider(scrapy.Spider):
                 charset='utf8mb4',
                 cursorclass=pymysql.cursors.DictCursor
             )
+            # Initialize cursor after successful connection
             self.cursor = self.connection.cursor()
 
             # Create the table if it doesn't exist
@@ -38,6 +41,7 @@ class NumberSpider(scrapy.Spider):
             raise
 
     def parse(self, response):
+        logging.info("Parsing response...")
         first_place_numbers = []
         second_place_numbers = []
         third_place_numbers = []
@@ -64,9 +68,10 @@ class NumberSpider(scrapy.Spider):
 
         # Ensure save_to_db is only called after the cursor has been initialized
         if hasattr(self, 'cursor'):
+            logging.info("Saving data to database...")
             self.save_to_db(current_date, first_place_numbers, second_place_numbers, third_place_numbers)
         else:
-            logging.error("Cursor is not initialized.")
+            logging.error("Cursor is not initialized. Skipping save_to_db.")
 
         yield {
             'keluaran': {
@@ -97,6 +102,7 @@ class NumberSpider(scrapy.Spider):
 
     def close_spider(self, spider):
         """Close the database connection when the spider finishes."""
+        logging.info("Closing database connection...")
         try:
             self.connection.close()
             logging.info("Database connection closed successfully.")

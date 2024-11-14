@@ -9,9 +9,9 @@ class NumberSpider(scrapy.Spider):
 
     def __init__(self):
         self.connection = pymysql.connect(
-            host='127.0.0.1',  # e.g., 'localhost' or IP address of the MySQL server
-            user='root',  # Your MySQL username
-            password='your_new_password',  # Your MySQL password
+            host='128.199.195.62',  # e.g., 'localhost' or IP address of the MySQL server
+            user='public_admin',  # Your MySQL username
+            password='Publicadmin123#',  # Your MySQL password
             database='hongkong',  # The name of the database
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor

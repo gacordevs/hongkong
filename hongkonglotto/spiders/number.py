@@ -7,7 +7,8 @@ class NumberSpider(scrapy.Spider):
     allowed_domains = ['hongkonglotto.com']
     start_urls = ['https://hongkonglotto.com/update-loadball']
 
-    def __init__(self):
+    def open_spider(self, spider):
+        """Open database connection when the spider starts."""
         self.connection = pymysql.connect(
             host='localhost',  # e.g., 'localhost' or IP address of the MySQL server
             user='public_admin',  # Your MySQL username
@@ -66,6 +67,7 @@ class NumberSpider(scrapy.Spider):
         }
 
     def save_to_db(self, date, first, second, third):
+        """Save scraped data to the MySQL database."""
         # Remove commas from each element, then join into strings
         first_str = ' '.join([f.replace(",", "") for f in first])
         second_str = ' '.join([s.replace(",", "") for s in second])
@@ -78,5 +80,6 @@ class NumberSpider(scrapy.Spider):
         ''', (date, first_str, second_str, third_str))
         self.connection.commit()
 
-    def close(self, reason):
+    def close_spider(self, spider):
+        """Close the database connection when the spider finishes."""
         self.connection.close()

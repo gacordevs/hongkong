@@ -9,36 +9,49 @@ class NumberSpider(scrapy.Spider):
     start_urls = ['https://hongkonglotto.com/update-loadball']
 
     def open_spider(self, spider):
-        """Open database connection when the spider starts."""
-        logging.info("Opening database connection...")
-        try:
-            # Try to establish the database connection
-            self.connection = pymysql.connect(
-                host='localhost',  # e.g., 'localhost' or IP address of the MySQL server
-                user='public_admin',  # Your MySQL username
-                password='Publicadmin123#',  # Your MySQL password
-                database='hongkong',  # The name of the database
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            # Initialize cursor after successful connection
-            self.cursor = self.connection.cursor()
+    """Open database connection when the spider starts."""
+    logging.info("Opening database connection...")
+    try:
+        # Use environment variables for credentials (ScrapeOps typically uses env vars)
+        host = os.getenv('DB_HOST', 'localhost')  # Default to localhost, but can be overridden in ScrapeOps
+        user = os.getenv('DB_USER', 'public_admin')
+        password = os.getenv('DB_PASSWORD', 'Publicadmin123#')
+        database = os.getenv('DB_NAME', 'hongkong')
 
-            # Create the table if it doesn't exist
-            self.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS keluaran (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    date DATETIME,
-                    first TEXT,
-                    second TEXT,
-                    third TEXT
-                )
-            ''')
-            self.connection.commit()
-            logging.info("Database connection and table setup successful.")
-        except Exception as e:
-            logging.error(f"Error setting up database connection: {e}")
-            raise
+        # Try to establish the database connection
+        self.connection = pymysql.connect(
+            host=host,  
+            user=user,  
+            password=password,  
+            database=database,  
+            charset='utf8mb4',
+            cursorclass=pymysql.cursors.DictCursor
+        )
+
+        # Initialize cursor after successful connection
+        self.cursor = self.connection.cursor()
+
+        # Create the table if it doesn't exist
+        self.cursor.execute(''' 
+            CREATE TABLE IF NOT EXISTS keluaran (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                date DATETIME,
+                first TEXT,
+                second TEXT,
+                third TEXT
+            )
+        ''')
+        self.connection.commit()
+        logging.info("Database connection and table setup successful.")
+    except Exception as e:
+        logging.error(f"Error setting up database connection: {e}")
+        raise
+
+    # Ensure cursor initialization is confirmed
+    if not hasattr(self, 'cursor'):
+        logging.error("Cursor initialization failed.")
+    else:
+        logging.info("Cursor initialized successfully.")
 
     def parse(self, response):
         logging.info("Parsing response...")

@@ -2,6 +2,7 @@ import scrapy
 import pymysql
 from datetime import datetime
 import logging
+import os
 
 class NumberSpider(scrapy.Spider):
     name = 'number'
@@ -9,7 +10,6 @@ class NumberSpider(scrapy.Spider):
     start_urls = ['https://hongkonglotto.com/update-loadball']
 
     def open_spider(self, spider):
-    """Open database connection when the spider starts."""
     logging.info("Opening database connection...")
     try:
         # Use environment variables for credentials (ScrapeOps typically uses env vars)
